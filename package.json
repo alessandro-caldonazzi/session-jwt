@@ -1,6 +1,6 @@
 {
   "name": "session-ws",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Script che permette di usare le sessioni al di fuori delle req",
   "main": "index.js",
   "scripts": {
