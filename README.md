@@ -8,6 +8,7 @@ ATTENTION: The module is currently in beta
 
 Use npm to install
 
+
 ```bash
 npm install session-ws
 ```

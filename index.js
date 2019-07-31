@@ -1,3 +1,4 @@
+const aes256 = require('aes256');
 let session = {
 	"utenti": {
 		"111": {
@@ -8,7 +9,9 @@ let session = {
 };
 let config = {
 	"auto-create": false,
-	"signed-cookie": false
+	"signed-cookie": false,
+	"crypted":true,
+	"secret":"default"
 }
 
 exports.configJson = (JsonObj) => {
@@ -58,7 +61,7 @@ exports.get = (id) => {
 		id = id.cookies.session;
 	}
 	if (esiste_id(id)) {
-		return session.utenti[id];
+		return decrypt(id);
 	} else {
 		return false;
 	}
@@ -69,7 +72,8 @@ exports.getOne = (id, key) => {
 		id = id.cookies.session;
 	}
 	if (esiste_id(id)) {
-		return session.utenti[id][key];
+		let c= decrypt(id);
+		return c[key];
 	} else {
 		return false;
 	}
@@ -135,7 +139,7 @@ exports.addOne = (id, key, value) => {
 	if (esiste_id(id)) {
 
 
-		session.utenti[id][key] = value;
+		session.utenti[id][aes256.encrypt(config.secret, key)] = aes256.encrypt(config.secret, value);
 		return true;
 
 	} else {
@@ -173,14 +177,26 @@ exports.addJson = (id, args) => {
 	    }
 	    
 	}
-	*/
-	if (!str(id)) {
+	*/if (!str(id)) {
 		id = id.cookies.session;
 	}
+
 	if (esiste_id(id)) {
 		for (let key in args) {
-			session.utenti[id][key] = args[key];
-		}
+            
+            if(typeof args[key]=="object"){
+                session.utenti[id][key]={};
+                
+                for (let key1 in args[key]) {
+                    
+                    session.utenti[id][key][key1] = aes256.encrypt(config.secret, args[key][key1]);
+                }
+            }else{
+                session.utenti[id][aes256.encrypt(config.secret, key)] = aes256.encrypt(config.secret, args[key]);
+
+            }
+        }
+       
 		return true;
 	} else {
 		return false;
@@ -188,7 +204,32 @@ exports.addJson = (id, args) => {
 
 
 }
+function decrypt(id){
+	let obj= Object.assign({}, session.utenti[id]);
+	
+	Object.keys(obj).forEach((key)=> {
 
+		if(typeof obj[key]=="object"){
+
+			Object.keys(obj[key]).forEach(function(key1) {
+				if(key1!="status"){
+					obj[aes256.decrypt(config.secret, key)][aes256.decrypt(config.secret, key1)]=aes256.decrypt(config.secret, obj[key][key1]);
+				}
+				
+			  
+			  });
+		}else{
+			if(key!="status"){
+                obj[aes256.decrypt(config.secret, key)]=aes256.decrypt(config.secret, obj[key]);
+                
+                delete obj[key];
+			}
+			
+		}
+	  
+	  });
+	return obj;
+}
 function esiste_id(id) {
 	return session.utenti.hasOwnProperty(id);
 }
