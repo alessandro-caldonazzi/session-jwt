@@ -1,4 +1,4 @@
-# session-jwt
+# session-jwt | WIP
 
 ## ATTENTION: session-ws is completely changing, its new name is session-jwt.
 The package will now include the use of JWT and Refresh-Token.
