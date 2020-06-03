@@ -1,5 +1,9 @@
 # Session-Ws
 
+## ATTENTION: session-ws is completely changing, its new name is session-jwt.
+The package will now include the use of JWT and Refresh-Token.
+WIP
+
 this module is used to maintain a session with the user
 
 ATTENTION: The module is currently in beta
