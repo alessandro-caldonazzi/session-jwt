@@ -6,7 +6,7 @@ The package will now include the use of JWT and Refresh-Token.
 ### The old session-ws will remain available in the "deprecated" brach, but will not be officially supported
 
 
-## Project flow
+## My Project flow
 
 The development takes place in the "develop" branch, it is subsequently brought to the brach master only during new publications on npm, in this way the master branch will always remain deployable
 
