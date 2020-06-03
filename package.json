@@ -1,14 +1,19 @@
 {
-  "name": "session-ws",
-  "version": "1.1.2",
-  "description": "Session-ws is nodejs module that allows you to use sessions to store user data on the server temporarily. It was developed to work with web sockets",
+  "name": "session-jwt",
+  "version": "1.0.0",
+  "description": "Session-jwt is nodejs module that allows you to use sessions with jwt and refresh tocken.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Alessandro Caldonazzi",
   "license": "ISC",
-  "dependencies": {
-    "aes256": "^1.0.4"
-  }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alessandro-caldonazzi/session-jwt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alessandro-caldonazzi/session-jwt/issues"
+  },
+  "homepage": "https://github.com/alessandro-caldonazzi/session-jwt#readme"
 }
