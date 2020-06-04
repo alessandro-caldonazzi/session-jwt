@@ -6,6 +6,10 @@ chai.use(chaiHttp);
 chai.should();
 
 describe('utente non loggato', () => {
+  afterEach( ( done ) => {
+    process.exit();
+    
+  } ),
   it('non deve ricevere kk come response', (done) => {
     chai.request(server)
                  .get('/')
@@ -17,3 +21,4 @@ describe('utente non loggato', () => {
     
   });
 });
+
