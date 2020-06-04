@@ -1,8 +1,19 @@
-const expect = require('chai').expect
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const server = require('../test-server');
 
-describe('test', () => {
-  it('should return a string', () => {
-    expect('ci with travis').to.equal('ci with travis');
+chai.use(chaiHttp);
+chai.should();
+
+describe('utente non loggato', () => {
+  it('non deve ricevere kk come response', (done) => {
+    chai.request(server)
+                 .get('/')
+                 .end((err, res) => {
+                     res.should.have.status(200);
+                     res.body.should.not.equal("kk");
+                     done();
+                  });
+    
   });
 });
