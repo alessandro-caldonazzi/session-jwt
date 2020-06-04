@@ -5,9 +5,11 @@ const app = express();
 
 app.use(session.middleware);
 
-session.config.secret="segreto";
-session.config.loginUrl="/login";
-session.config.restrictedArea=['/'];
+console.log(Array.isArray(['a']));
+
+session.settings('segreto', ['/'], '/login');
+
+
 
 app.get('/', (req, res) => {
     res.send("kk");
