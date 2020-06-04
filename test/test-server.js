@@ -1,5 +1,5 @@
 const express = require("express");
-const session = require("./index.js");
+const session = require("../index.js");
 const jwt = require("jsonwebtoken");
 const app = express();
 

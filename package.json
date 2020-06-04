@@ -4,8 +4,8 @@
     "description": "Session-jwt is nodejs module that allows you to use sessions with jwt and refresh tocken.",
     "main": "index.js",
     "scripts": {
-        "start": "node test-server.js",
-        "test": "mocha --require mocha-steps"
+        "start": "node test/test-server.js",
+        "test": "mocha --require mocha-steps --exit"
     },
     "author": "Alessandro Caldonazzi",
     "license": "ISC",
@@ -26,7 +26,6 @@
         "chai": "^4.2.0",
         "chai-http": "^4.3.0",
         "express": "^4.17.1"
-
     },
     "dependencies": {
         "jsonwebtoken": "^8.5.1"
