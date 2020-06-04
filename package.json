@@ -1,32 +1,33 @@
 {
-  "name": "session-jwt",
-  "version": "1.0.0",
-  "description": "Session-jwt is nodejs module that allows you to use sessions with jwt and refresh tocken.",
-  "main": "index.js",
-  "scripts": {
-    "start": "node test-server.js",
-    "test": "mocha"
-  },
-  "author": "Alessandro Caldonazzi",
-  "license": "ISC",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alessandro-caldonazzi/session-jwt.git"
-  },
-  "bugs": {
-    "url": "https://github.com/alessandro-caldonazzi/session-jwt/issues"
-  },
-  "homepage": "https://github.com/alessandro-caldonazzi/session-jwt#readme",
-  "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-plugin-import": "^2.20.2"
-  },
-  "dependencies": {
-    "chai": "^4.2.0",
-    "chai-http": "^4.3.0",
-    "express": "^4.17.1",
-    "jsonwebtoken": "^8.5.1",
-    "mocha": "^7.2.0"
-  }
+    "name": "session-jwt",
+    "version": "1.0.0",
+    "description": "Session-jwt is nodejs module that allows you to use sessions with jwt and refresh tocken.",
+    "main": "index.js",
+    "scripts": {
+        "start": "node test-server.js",
+        "test": "mocha --require mocha-steps"
+    },
+    "author": "Alessandro Caldonazzi",
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/alessandro-caldonazzi/session-jwt.git"
+    },
+    "bugs": {
+        "url": "https://github.com/alessandro-caldonazzi/session-jwt/issues"
+    },
+    "homepage": "https://github.com/alessandro-caldonazzi/session-jwt#readme",
+    "devDependencies": {
+        "eslint": "^6.8.0",
+        "eslint-config-airbnb-base": "^14.1.0",
+        "eslint-plugin-import": "^2.20.2",
+        "mocha-steps": "^1.3.0"
+    },
+    "dependencies": {
+        "chai": "^4.2.0",
+        "chai-http": "^4.3.0",
+        "express": "^4.17.1",
+        "jsonwebtoken": "^8.5.1",
+        "mocha": "^7.2.0"
+    }
 }
