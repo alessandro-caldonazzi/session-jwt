@@ -22,3 +22,5 @@ app.listen(3000, function () {
 app.get('/login', (req, res)=>{
     res.send(jwt.sign({user:'ale'}, session.config.secret));
 });
+
+module.exports=app;

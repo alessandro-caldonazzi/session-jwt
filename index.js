@@ -7,7 +7,7 @@ module.exports.middleware =(req, res, next)=>{
         next();
         return;
     }
-    jwt.verify(req.headers.jwt, this.config.secret, (err, decoded)=>{
+    jwt.verify(req.headers.jwt, this.config.secret, (err)=>{
         if(err){
             res.redirect(this.config.loginUrl);
             res.end();
