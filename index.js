@@ -1,14 +1,14 @@
-import { verify, sign } from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
-export const config = {}
+module.exports.config = {}
 
-export function middleware(req, res, next) {
+module.exports.middleware = (req, res, next) => {
     if (!this.config.restrictedArea.includes(req.path)) {
         next();
         return;
     }
 
-    verify(req.headers.jwt, this.config.secret, (err) => {
+    jwt.verify(req.headers.jwt, this.config.secret, (err) => {
         if (err) {
             res.redirect(301, this.config.loginUrl);
             res.end();
@@ -19,7 +19,7 @@ export function middleware(req, res, next) {
 
 }
 
-export function settings(secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh" }) {
+module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh" }) => {
 
     if (!secret) throw 'secret is required in settings function';
 
@@ -40,28 +40,28 @@ export function settings(secret, restrictedArea, loginUrl, options = { "refreshU
     this.config.refreshUrl = options.refreshUrl
 }
 
-export function newSession(objData, callback) {
+module.exports.newSession = (objData, callback) => {
     return new Promise((resolve) => {
-        sign(objData, this.config.secret, (err, jwtToken) => {
+        jwt.sign(objData, this.config.secret, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
-            sign(objData, this.config.secret, (err, refreshToken) => {
+            jwt.sign(objData, this.config.secret, (err, refreshToken) => {
 
                 if (callback) callback(jwtToken, refreshToken);
-                resolve({ jwtToken, refreshToken })
+                resolve({ jwtToken, refreshToken });
             });
         });
     });
 }
 
-export function refresh(req, callback) {
+module.exports.refresh = (req, callback) => {
     return new Promise((resolve) => {
-        verify(req.cookies.refresh, this.config.secret, (err, obj) => {
+        jwt.verify(req.cookies.refresh, this.config.secret, (err, obj) => {
             if (err) {
                 if (callback) callback(true);
                 resolve(null);
             } else {
-                sign(obj, this.config.secret, (err, jwt) => {
+                jwt.sign(obj, this.config.secret, (err, jwt) => {
                     if (callback) callback(err, jwt);
                     resolve(jwt);
                 });
