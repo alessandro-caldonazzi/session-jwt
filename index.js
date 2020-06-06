@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 
-module.exports.config = {}
+let blacklistCache = [];
+
+module.exports.config = {};
 
 module.exports.middleware = (req, res, next) => {
     if (!this.config.restrictedArea.includes(req.path)) {
@@ -9,7 +11,7 @@ module.exports.middleware = (req, res, next) => {
     }
 
     jwt.verify(req.headers.jwt, this.config.secret, (err) => {
-        if (err) {
+        if (err || blacklistCache.includes(req.headers.jwt)) {
             res.redirect(301, this.config.loginUrl);
             res.end();
         } else {
@@ -26,7 +28,7 @@ module.exports.middleware = (req, res, next) => {
  * @param {String} loginUrl - Endpoit where the usere logs in
  * @param {Object} options - For example: option.refreshUrl contain a String repesenting the refresh endpoint
  */
-module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh" }) => {
+module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh", "blacklisting": true }) => {
 
     if (!secret) throw 'secret is required in settings function';
 
@@ -45,6 +47,7 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
     this.config.restrictedArea = restrictedArea;
     this.config.loginUrl = loginUrl;
     this.config.refreshUrl = options.refreshUrl
+    this.config.blacklisting = options.blacklisting
 }
 
 
@@ -56,9 +59,10 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
  */
 module.exports.newSession = (objData, callback) => {
     return new Promise((resolve) => {
-        jwt.sign(objData, this.config.secret, (err, jwtToken) => {
+        jwt.sign(objData, this.config.secret, { expiresIn: 10 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
+            blacklistCache.push(jwtToken);
             jwt.sign(objData, this.config.secret, (err, refreshToken) => {
 
                 if (callback) callback(jwtToken, refreshToken);
@@ -72,7 +76,7 @@ module.exports.newSession = (objData, callback) => {
  * @function refresh - Recreate jwt if there is a valid refreshToken in req as cookie
  * @param {Object} req - Express request
  * @param {function (Boolean, Object)} [callback] - Optional function, called after calculating jwt 
- * @returns {Promise} Return a promise with jwtToken
+ * @returns {Promise} - Return a promise with jwtToken
  */
 module.exports.refresh = (req, callback) => {
     return new Promise((resolve) => {
@@ -81,7 +85,7 @@ module.exports.refresh = (req, callback) => {
                 if (callback) callback(true);
                 resolve(null);
             } else {
-                jwt.sign(obj, this.config.secret, (err, jwt) => {
+                jwt.sign(obj, this.config.secret, { expiresIn: 10 }, (err, jwt) => {
                     if (callback) callback(err, jwt);
                     resolve(jwt);
                 });
@@ -89,3 +93,32 @@ module.exports.refresh = (req, callback) => {
         });
     });
 }
+
+/**
+ * @function blacklist - blacklist an jwt if blacklisting is enable in config
+ * @param {String} jwt - Jwt to blacklist
+ * @returns {Boolean} - Operation status
+ */
+module.exports.blacklist = (jwt) => {
+    if (this.config.blacklisting) {
+        blacklistCache.push(jwt);
+        blacklistCache.sort();
+    } else {
+        throw "To blacklist an jwt you need to enable blacklisting in settings";
+    }
+}
+
+//function that remove expired jwt from blacklistcache every 2 minute
+let intervalID = setInterval(() => {
+    for (let index = 0; index < blacklistCache.length; index++) {
+        const element = blacklistCache[index];
+
+        jwt.verify(element, this.config.secret, (err, obj) => {
+            if (err) {
+                blacklistCache.splice(index, 1);
+                console.log("eliminato: ");
+                console.log(element);
+            }
+        });
+    }
+}, 2 * 60 * 60);
