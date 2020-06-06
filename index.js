@@ -19,6 +19,13 @@ module.exports.middleware = (req, res, next) => {
 
 }
 
+/** 
+ * @function settings - Use this function to setup the module
+ * @param {String} secret - Secret used for jwt
+ * @param {Array} restrictedArea - Array of string representing the endpoits where authentication is required
+ * @param {String} loginUrl - Endpoit where the usere logs in
+ * @param {Object} options - For example: option.refreshUrl contain a String repesenting the refresh endpoint
+ */
 module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh" }) => {
 
     if (!secret) throw 'secret is required in settings function';
@@ -40,6 +47,13 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
     this.config.refreshUrl = options.refreshUrl
 }
 
+
+/** 
+ * @function newSession - Create new session (generate jwt and refreshToken)
+ * @param {Object} objData - Data to save in jwt
+ * @param {function (Object, Object)} [callback] - Optional function, called after calculating jwt and refreshToken
+ * @returns {Promise} Return a promise with jwtToken and refreshToken as a Object
+ */
 module.exports.newSession = (objData, callback) => {
     return new Promise((resolve) => {
         jwt.sign(objData, this.config.secret, (err, jwtToken) => {
@@ -54,6 +68,12 @@ module.exports.newSession = (objData, callback) => {
     });
 }
 
+/**
+ * @function refresh - Recreate jwt if there is a valid refreshToken in req as cookie
+ * @param {Object} req - Express request
+ * @param {function (Boolean, Object)} [callback] - Optional function, called after calculating jwt 
+ * @returns {Promise} Return a promise with jwtToken
+ */
 module.exports.refresh = (req, callback) => {
     return new Promise((resolve) => {
         jwt.verify(req.cookies.refresh, this.config.secret, (err, obj) => {

@@ -7,7 +7,6 @@ const app = express();
 app.use(cookieParser())
 app.use(session.middleware);
 
-
 session.settings("segreto", ["/"], "/login");
 
 app.get("/", (req, res) => {
@@ -23,8 +22,6 @@ app.get("/login", async(req, res) => {
 
     res.cookie('refresh', refreshToken, { maxAge: 90000000, httpOnly: false, secure: false });
     res.send({ "jwt": jwtToken });
-
-
 });
 
 app.get("/refresh", async(req, res) => {
