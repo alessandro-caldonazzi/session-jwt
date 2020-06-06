@@ -41,12 +41,15 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
 }
 
 module.exports.newSession = (objData, callback) => {
-    jwt.sign(objData, this.config.secret, (err, jwtToken) => {
+    return new Promise((resolve) => {
+        jwt.sign(objData, this.config.secret, (err, jwtToken) => {
 
-        Object.assign(objData, { "isRefresh": true });
-        jwt.sign(objData, this.config.secret, (err, refreshToken) => {
+            Object.assign(objData, { "isRefresh": true });
+            jwt.sign(objData, this.config.secret, (err, refreshToken) => {
 
-            callback(jwtToken, refreshToken)
+                if (callback) callback(jwtToken, refreshToken);
+                resolve({ jwtToken, refreshToken })
+            });
         });
     });
 }

@@ -18,11 +18,12 @@ app.listen(3000, function() {
     console.log("server on");
 });
 
-app.get("/login", (req, res) => {
-    session.newSession({ "user": "ale" }, (JWT, refresh) => {
-        res.cookie('refresh', refresh, { maxAge: 90000000, httpOnly: false, secure: false });
-        res.send({ "jwt": JWT });
-    });
+app.get("/login", async(req, res) => {
+    let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" });
+
+    res.cookie('refresh', refreshToken, { maxAge: 90000000, httpOnly: false, secure: false });
+    res.send({ "jwt": jwtToken });
+
 
 });
 
