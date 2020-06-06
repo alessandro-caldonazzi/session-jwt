@@ -62,8 +62,7 @@ module.exports.refresh = (req, callback) => {
             callback(true);
         } else {
             jwt.sign(obj, this.config.secret, (err, jwt) => {
-                callback(false, jwt);
-                console.log("nuovo");
+                callback(err, jwt);
             });
         }
     });
