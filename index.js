@@ -59,7 +59,7 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
  */
 module.exports.newSession = (objData, callback) => {
     return new Promise((resolve) => {
-        jwt.sign(objData, this.config.secret, { expiresIn: 10 }, (err, jwtToken) => {
+        jwt.sign(objData, this.config.secret, { expiresIn: 40 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
             blacklistCache.push(jwtToken);
@@ -85,7 +85,7 @@ module.exports.refresh = (req, callback) => {
                 if (callback) callback(true);
                 resolve(null);
             } else {
-                jwt.sign(obj, this.config.secret, { expiresIn: 10 }, (err, jwt) => {
+                jwt.sign(obj, this.config.secret, { expiresIn: 40 }, (err, jwt) => {
                     if (callback) callback(err, jwt);
                     resolve(jwt);
                 });
