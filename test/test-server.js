@@ -1,11 +1,12 @@
 const express = require("express");
 const session = require("../index.js");
 const jwt = require("jsonwebtoken");
+var cookieParser = require('cookie-parser')
 const app = express();
 
+app.use(cookieParser())
 app.use(session.middleware);
 
-console.log(Array.isArray(["a"]));
 
 session.settings("segreto", ["/"], "/login");
 
@@ -18,9 +19,13 @@ app.listen(3000, function() {
 });
 
 app.get("/login", (req, res) => {
-    res.send({
-        "jwt": jwt.sign({ user: "ale" }, session.config.secret)
-    });
+    let [JWT, refresh] = session.newSession({ "user": "ale" });
+    res.cookie('refresh', refresh, { maxAge: 900000, httpOnly: true, secure: true });
+    res.send({ "jwt": JWT });
+});
+
+app.get("/refresh", (req, res) => {
+    res.send("JWT");
 });
 
 module.exports = app;

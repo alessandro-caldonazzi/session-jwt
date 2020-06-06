@@ -7,6 +7,7 @@ module.exports.middleware = (req, res, next) => {
         next();
         return;
     }
+
     jwt.verify(req.headers.jwt, this.config.secret, (err) => {
         if (err) {
             res.redirect(this.config.loginUrl);
@@ -15,9 +16,11 @@ module.exports.middleware = (req, res, next) => {
             next();
         }
     });
+
 }
 
-module.exports.settings = (secret, restrictedArea, loginUrl, options) => {
+module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh" }) => {
+
     if (!secret) {
         throw 'Secret is required in settings function';
     }
@@ -39,4 +42,17 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options) => {
     this.config.secret = secret;
     this.config.restrictedArea = restrictedArea;
     this.config.loginUrl = loginUrl;
+    this.config.refreshUrl = options.refreshUrl
+}
+
+module.exports.newSession = (objData) => {
+
+    let jwtToken = jwt.sign(objData, this.config.secret);
+    Object.assign(objData, { "isRefresh": true });
+    let refreshToken = jwt.sign(objData, this.config.secret);
+    return [
+        jwtToken,
+        refreshToken
+    ]
+
 }
