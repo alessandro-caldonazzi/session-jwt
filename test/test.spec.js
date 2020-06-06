@@ -16,6 +16,16 @@ describe("utente non loggato", () => {
                 done();
             });
     });
+
+    it("prova endpoit request senza token", (done) => {
+        chai.request(server)
+            .get("/refresh")
+            .redirects(0)
+            .end((err, res) => {
+                res.should.have.status(301);
+                done();
+            });
+    });
 });
 
 describe("utente loggato", () => {

@@ -21,24 +21,19 @@ module.exports.middleware = (req, res, next) => {
 
 module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh" }) => {
 
-    if (!secret) {
-        throw 'Secret is required in settings function';
-    }
-    if (!restrictedArea) {
-        throw 'restrictedArea is required in settings function';
-    }
-    if (!loginUrl) {
-        throw 'loginUrl is required in settings function';
-    }
-    if (!Array.isArray(restrictedArea)) {
-        throw 'restrictedArea must be an Array';
-    }
-    if (typeof secret !== 'string') {
-        throw 'secret must be an string';
-    }
-    if (typeof loginUrl !== 'string') {
-        throw 'loginUrl must be an string';
-    }
+    if (!secret) throw 'secret is required in settings function';
+
+    if (!restrictedArea) throw 'restrictedArea is required in settings function';
+
+    if (!loginUrl) throw 'loginUrl is required in settings function';
+
+    if (!Array.isArray(restrictedArea)) throw 'restrictedArea must be an Array';
+
+    if (typeof secret !== 'string') throw 'secret must be an string';
+
+    if (typeof loginUrl !== 'string') throw 'loginUrl must be an string';
+
+
     this.config.secret = secret;
     this.config.restrictedArea = restrictedArea;
     this.config.loginUrl = loginUrl;
@@ -57,13 +52,17 @@ module.exports.newSession = (objData, callback) => {
 }
 
 module.exports.refresh = (req, callback) => {
-    jwt.verify(req.cookies.refresh, this.config.secret, (err, obj) => {
-        if (err) {
-            callback(true);
-        } else {
-            jwt.sign(obj, this.config.secret, (err, jwt) => {
-                callback(err, jwt);
-            });
-        }
+    return new Promise((resolve) => {
+        jwt.verify(req.cookies.refresh, this.config.secret, (err, obj) => {
+            if (err) {
+                if (callback) callback(true);
+                resolve(null);
+            } else {
+                jwt.sign(obj, this.config.secret, (err, jwt) => {
+                    if (callback) callback(err, jwt);
+                    resolve(jwt);
+                });
+            }
+        });
     });
 }
