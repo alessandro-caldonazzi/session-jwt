@@ -19,13 +19,16 @@ app.listen(3000, function() {
 });
 
 app.get("/login", (req, res) => {
-    let [JWT, refresh] = session.newSession({ "user": "ale" });
-    res.cookie('refresh', refresh, { maxAge: 900000, httpOnly: true, secure: true });
-    res.send({ "jwt": JWT });
+    session.newSession({ "user": "ale" }, (JWT, refresh) => {
+        res.cookie('refresh', refresh, { maxAge: 90000000, httpOnly: false, secure: false });
+        res.send({ "jwt": JWT });
+    });
+
 });
 
 app.get("/refresh", (req, res) => {
-    res.send("JWT");
+    session.refresh(req);
+    res.send(req.cookies);
 });
 
 module.exports = app;
