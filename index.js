@@ -10,7 +10,7 @@ module.exports.middleware = (req, res, next) => {
 
     jwt.verify(req.headers.jwt, this.config.secret, (err) => {
         if (err) {
-            res.redirect(this.config.loginUrl);
+            res.redirect(301, this.config.loginUrl);
             res.end();
         } else {
             next();
@@ -45,24 +45,26 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
     this.config.refreshUrl = options.refreshUrl
 }
 
-module.exports.newSession = async(objData, callback) => {
-    let jwtToken = jwt.sign(objData, this.config.secret, (err, jwtToken) => {
+module.exports.newSession = (objData, callback) => {
+    jwt.sign(objData, this.config.secret, (err, jwtToken) => {
 
         Object.assign(objData, { "isRefresh": true });
-        let refreshToken = jwt.sign(objData, this.config.secret, (err, refreshToken) => {
+        jwt.sign(objData, this.config.secret, (err, refreshToken) => {
 
             callback(jwtToken, refreshToken)
         });
     });
 }
 
-module.exports.refresh = (req) => {
-    jwt.verify(req.cookies.refresh, this.config.secret, (obj, err) => {
+module.exports.refresh = (req, callback) => {
+    jwt.verify(req.cookies.refresh, this.config.secret, (err, obj) => {
         if (err) {
-            res.redirect(this.config.loginUrl);
-            res.end();
+            callback(true);
         } else {
-            return jwt.sign(objData, this.config.secret);
+            jwt.sign(obj, this.config.secret, (err, jwt) => {
+                callback(false, jwt);
+                console.log("nuovo");
+            });
         }
     });
 }

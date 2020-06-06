@@ -27,8 +27,16 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/refresh", (req, res) => {
-    session.refresh(req);
-    res.send(req.cookies);
+    session.refresh(req, (err, jwt) => {
+        if (err) {
+            res.redirect(301, '/login');
+            res.end();
+        } else {
+            res.send({ "jwt": jwt });
+        }
+
+    });
+
 });
 
 module.exports = app;

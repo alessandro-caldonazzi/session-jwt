@@ -19,7 +19,7 @@ describe("utente non loggato", () => {
 });
 
 describe("utente loggato", () => {
-    let jwt;
+    let jwt, cookie;
     step("recupero jwt loggando utente", (done) => {
         chai.request(server)
             .get("/login")
@@ -27,7 +27,9 @@ describe("utente loggato", () => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 jwt = res.body.jwt;
+                res.body.should.have.property('jwt');
                 res.header['set-cookie'].should.have.length(1);
+                cookie = res.header['set-cookie'];
                 done();
             });
     });
@@ -39,6 +41,18 @@ describe("utente loggato", () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 res.text.should.equal("kk");
+                done();
+            });
+    });
+
+    step("Prova refresh senza jwt", (done) => {
+        chai.request(server)
+            .get("/refresh")
+            .set('Cookie', cookie[0])
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                res.body.should.have.property('jwt');
                 done();
             });
     });
