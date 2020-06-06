@@ -62,7 +62,6 @@ module.exports.newSession = (objData, callback) => {
         jwt.sign(objData, this.config.secret, { expiresIn: 40 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
-            blacklistCache.push(jwtToken);
             jwt.sign(objData, this.config.secret, (err, refreshToken) => {
 
                 if (callback) callback(jwtToken, refreshToken);
