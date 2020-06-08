@@ -5,14 +5,13 @@ let blacklistCache = [];
 module.exports.config = {};
 
 module.exports.middleware = (req, res, next) => {
-
     if (!this.config.restrictedArea.includes(req.path)) {
         next();
         return;
     }
 
-    jwt.verify(req.headers.jwt, this.config.secret, (err) => {
-        if (err || blacklistCache.includes(req.headers.jwt)) {
+    jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err) => {
+        if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
             if (req.cookies.refresh != undefined) {
                 res.redirect(301, this.config.refreshUrl);
                 res.end();
@@ -20,7 +19,6 @@ module.exports.middleware = (req, res, next) => {
                 res.redirect(301, this.config.loginUrl);
                 res.end();
             }
-
         } else {
             next();
         }
@@ -35,7 +33,7 @@ module.exports.middleware = (req, res, next) => {
  * @param {String} loginUrl - Endpoit where the usere logs in
  * @param {Object} options - For example: option.refreshUrl contain a String repesenting the refresh endpoint
  */
-module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh", "blacklisting": true }) => {
+module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh", "blacklisting": true, "JwtHeaderKeyName": "jwt" }) => {
 
     if (!secret) throw 'secret is required in settings function';
 
@@ -53,8 +51,9 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
     this.config.secret = secret;
     this.config.restrictedArea = restrictedArea;
     this.config.loginUrl = loginUrl;
-    this.config.refreshUrl = options.refreshUrl
-    this.config.blacklisting = options.blacklisting
+    this.config.refreshUrl = options.refreshUrl;
+    this.config.blacklisting = options.blacklisting;
+    this.config.JwtHeaderKeyName = options.JwtHeaderKeyName;
 }
 
 

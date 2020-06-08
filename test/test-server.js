@@ -1,3 +1,7 @@
+//this file represent an express server needed to execute test
+
+//ATTENTION: take inspiration only regarding the methods of the npm module, the rest is not ready to go into production
+
 const express = require("express");
 const session = require("../index.js");
 const jwt = require("jsonwebtoken");
@@ -6,6 +10,7 @@ const app = express();
 
 app.use(cookieParser());
 app.use(session.middleware);
+app.use(express.urlencoded({ extended: true }))
 
 session.settings("segreto", ["/"], "/login");
 
