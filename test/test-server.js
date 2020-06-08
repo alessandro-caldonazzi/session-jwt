@@ -36,6 +36,7 @@ app.get("/login", async(req, res) => {
 app.get("/refresh", async(req, res) => {
     let jwt = await session.refresh(req);
     if (jwt) {
+        res.setHeader('Content-Type', 'application/json');
         res.send({ "jwt": jwt });
     } else {
         res.redirect(301, '/login');

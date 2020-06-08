@@ -10,12 +10,17 @@ module.exports.middleware = (req, res, next) => {
         next();
         return;
     }
-    console.log(req.headers)
 
     jwt.verify(req.headers.jwt, this.config.secret, (err) => {
         if (err || blacklistCache.includes(req.headers.jwt)) {
-            res.redirect(301, this.config.loginUrl);
-            res.end();
+            if (req.cookies.refresh != undefined) {
+                res.redirect(301, this.config.refreshUrl);
+                res.end();
+            } else {
+                res.redirect(301, this.config.loginUrl);
+                res.end();
+            }
+
         } else {
             next();
         }
