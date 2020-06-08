@@ -1,10 +1,10 @@
 const express = require("express");
 const session = require("../index.js");
 const jwt = require("jsonwebtoken");
-var cookieParser = require('cookie-parser')
+var cookieParser = require('cookie-parser');
 const app = express();
 
-app.use(cookieParser())
+app.use(cookieParser());
 app.use(session.middleware);
 
 session.settings("segreto", ["/"], "/login");
@@ -32,6 +32,11 @@ app.get("/refresh", async(req, res) => {
         res.redirect(301, '/login');
         res.end();
     }
+});
+
+app.get("/blacklist", async(req, res) => {
+    let blacklist = await session.blacklist(req.headers.jwt).catch();
+    res.send({ "blacklist": blacklist });
 });
 
 module.exports = app;
