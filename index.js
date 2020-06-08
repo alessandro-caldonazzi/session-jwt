@@ -5,10 +5,12 @@ let blacklistCache = [];
 module.exports.config = {};
 
 module.exports.middleware = (req, res, next) => {
+
     if (!this.config.restrictedArea.includes(req.path)) {
         next();
         return;
     }
+    console.log(req.headers)
 
     jwt.verify(req.headers.jwt, this.config.secret, (err) => {
         if (err || blacklistCache.includes(req.headers.jwt)) {
@@ -59,7 +61,7 @@ module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refres
  */
 module.exports.newSession = (objData, callback) => {
     return new Promise((resolve) => {
-        jwt.sign(objData, this.config.secret, { expiresIn: 40 }, (err, jwtToken) => {
+        jwt.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
             jwt.sign(objData, this.config.secret, (err, refreshToken) => {
@@ -84,7 +86,7 @@ module.exports.refresh = (req, callback) => {
                 if (callback) callback(true);
                 resolve(null);
             } else {
-                jwt.sign(obj, this.config.secret, { expiresIn: 40 }, (err, jwt) => {
+                jwt.sign(obj, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
                     if (callback) callback(err, jwt);
                     resolve(jwt);
                 });

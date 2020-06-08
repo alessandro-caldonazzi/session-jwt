@@ -9,6 +9,15 @@ app.use(session.middleware);
 
 session.settings("segreto", ["/"], "/login");
 
+//ATTENTION THIS IS NOT PRODUCTION READY | DO NOT USE THIS IN PRODUCTION
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
+
+app.use(express.static(__dirname + '/client'));
+
 app.get("/", (req, res) => {
     res.send("kk");
 });
@@ -38,5 +47,9 @@ app.get("/blacklist", async(req, res) => {
     let blacklist = await session.blacklist(req.headers.jwt).catch();
     res.send({ "blacklist": blacklist });
 });
+
+
+
+
 
 module.exports = app;
