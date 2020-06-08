@@ -99,12 +99,14 @@ module.exports.refresh = (req, callback) => {
  * @returns {Boolean} - Operation status
  */
 module.exports.blacklist = (jwt) => {
-    if (this.config.blacklisting) {
-        blacklistCache.push(jwt);
-        blacklistCache.sort();
-    } else {
-        throw "To blacklist an jwt you need to enable blacklisting in settings";
-    }
+    return new Promise((resolve, reject) => {
+        if (this.config.blacklisting) {
+            blacklistCache.push(jwt);
+            resolve(true);
+        } else {
+            reject("To blacklist an jwt you need to enable blacklisting in settings");
+        }
+    });
 }
 
 //function that remove expired jwt from blacklistcache every 2 minute
