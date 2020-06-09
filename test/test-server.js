@@ -21,7 +21,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use(express.static(__dirname + '/client'));
+app.use(express.static(__dirname + "/client"));
 
 app.get("/", (req, res) => {
     res.send("kk");
