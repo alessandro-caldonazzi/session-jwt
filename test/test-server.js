@@ -5,12 +5,12 @@
 const express = require("express");
 const session = require("../index.js");
 const jwt = require("jsonwebtoken");
-var cookieParser = require('cookie-parser');
+var cookieParser = require("cookie-parser");
 const app = express();
 
 app.use(cookieParser());
 app.use(session.middleware);
-app.use(express.urlencoded({ extended: true }))
+app.use(express.urlencoded({ extended: true }));
 
 session.settings("segreto", ["/"], "/login");
 
@@ -34,24 +34,24 @@ app.listen(3000, function() {
 app.get("/login", async(req, res) => {
     let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" });
 
-    res.cookie('refresh', refreshToken, { maxAge: 90000000, httpOnly: false, secure: false });
+    res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: false, secure: false });
     res.send({ "jwt": jwtToken });
 });
 
 app.get("/refresh", async(req, res) => {
     let jwt = await session.refresh(req);
     if (jwt) {
-        res.setHeader('Content-Type', 'application/json');
-        res.send({ "jwt": jwt });
+        res.setHeader("Content-Type", "application/json");
+        res.send({ jwt });
     } else {
-        res.redirect(301, '/login');
+        res.redirect(301, "/login");
         res.end();
     }
 });
 
 app.get("/blacklist", async(req, res) => {
     let blacklist = await session.blacklist(req.headers.jwt).catch();
-    res.send({ "blacklist": blacklist });
+    res.send({ blacklist });
 });
 
 

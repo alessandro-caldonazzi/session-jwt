@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 let blacklistCache = [];
 
@@ -12,7 +12,7 @@ module.exports.middleware = (req, res, next) => {
 
     jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err) => {
         if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
-            if (req.cookies.refresh != undefined) {
+            if (req.cookies.refresh !== undefined) {
                 res.redirect(301, this.config.refreshUrl);
                 res.end();
             } else {
@@ -24,7 +24,7 @@ module.exports.middleware = (req, res, next) => {
         }
     });
 
-}
+};
 
 /** 
  * @function settings - Use this function to setup the module
@@ -35,17 +35,17 @@ module.exports.middleware = (req, res, next) => {
  */
 module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh", "blacklisting": true, "JwtHeaderKeyName": "jwt" }) => {
 
-    if (!secret) throw 'secret is required in settings function';
+    if (!secret) throw "secret is required in settings function";
 
-    if (!restrictedArea) throw 'restrictedArea is required in settings function';
+    if (!restrictedArea) throw "restrictedArea is required in settings function";
 
-    if (!loginUrl) throw 'loginUrl is required in settings function';
+    if (!loginUrl) throw "loginUrl is required in settings function";
 
-    if (!Array.isArray(restrictedArea)) throw 'restrictedArea must be an Array';
+    if (!Array.isArray(restrictedArea)) throw "restrictedArea must be an Array";
 
-    if (typeof secret !== 'string') throw 'secret must be an string';
+    if (typeof secret !== 'string') throw "secret must be an string";
 
-    if (typeof loginUrl !== 'string') throw 'loginUrl must be an string';
+    if (typeof loginUrl !== 'string') throw "loginUrl must be an string";
 
 
     this.config.secret = secret;
@@ -118,7 +118,7 @@ module.exports.blacklist = (jwt) => {
 //function that remove expired jwt from blacklistcache every 2 minute
 let intervalID = setInterval(() => {
     for (let index = 0; index < blacklistCache.length; index++) {
-        const element = blacklistCache[index];
+        const element = blacklistCache[parseInt(index)];
 
         jwt.verify(element, this.config.secret, (err, obj) => {
             if (err) {

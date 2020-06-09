@@ -8,18 +8,14 @@ function Session() {
         },
         "JwtKeyName": "jwt",
         "advancedSecurity": true
-    }
+    };
 
     this.fetch = async(url, option = {}) => {
-        if (option.headers == undefined) {
+        if (!option.headers) {
             option.headers = {};
         }
         option.headers[config.JwtKeyName] = jwt;
         return await fetch(url, option);
-    }
-
-    this.refresh = async() => {
-        jwt = await getJwt();
     }
 
     var getJwt = () => {
@@ -27,11 +23,14 @@ function Session() {
             this.fetch(config.refreshUrl)
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data[config.JwtKeyName])
                     resolve(data[config.JwtKeyName]);
                 })
                 .catch(err => reject(err));
         });
+    }
+
+    this.refresh = async() => {
+        jwt = await getJwt();
     }
 
     this.blacklist = () => {

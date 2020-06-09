@@ -47,7 +47,7 @@ describe("utente loggato", () => {
     step("Prova accesso area ristretta con jwt", (done) => {
         chai.request(server)
             .get("/")
-            .set('jwt', jwt)
+            .set("jwt", jwt)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.text.should.equal("kk");
@@ -58,11 +58,11 @@ describe("utente loggato", () => {
     step("Prova refresh senza jwt", (done) => {
         chai.request(server)
             .get("/refresh")
-            .set('Cookie', cookie[0])
+            .set("Cookie", cookie[0])
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.should.have.property('jwt');
+                res.body.should.have.property("jwt");
                 done();
             });
     });
@@ -74,7 +74,7 @@ describe("utente loggato", () => {
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
-                res.body.should.have.property('blacklist');
+                res.body.should.have.property("blacklist");
                 res.body.blacklist.should.be.true;
                 done();
             });
