@@ -118,7 +118,7 @@ module.exports.blacklist = (jwt) => {
 //function that remove expired jwt from blacklistcache every 2 minute
 let intervalID = setInterval(() => {
     for (let index = 0; index < blacklistCache.length; index++) {
-        const element = blacklistCache[parseInt(index)];
+        const element = blacklistCache[parseInt(index, 10)];
 
         jwt.verify(element, this.config.secret, (err, obj) => {
             if (err) {
