@@ -14,13 +14,18 @@ function Session() {
         if (!option.headers) {
             option.headers = {};
         }
-        option.headers[config.JwtKeyName] = jwt;
+        if (config.advancedSecurity) {
+            option.headers[config.JwtKeyName] = await getJwt();
+        } else {
+            option.headers[config.JwtKeyName] = jwt;
+        }
+
         return await fetch(url, option);
     }
 
     var getJwt = () => {
         return new Promise((resolve, reject) => {
-            this.fetch(config.refreshUrl)
+            fetch(config.refreshUrl)
                 .then(response => response.json())
                 .then(data => {
                     resolve(data[config.JwtKeyName]);
