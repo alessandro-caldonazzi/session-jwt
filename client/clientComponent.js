@@ -10,6 +10,9 @@ function Session() {
         "advancedSecurity": true
     };
 
+    this.setConfig = (newConfig) => {
+        config = newConfig;
+    }
     this.fetch = async(url, option = {}) => {
         if (!option.headers) {
             option.headers = {};
