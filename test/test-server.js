@@ -34,7 +34,7 @@ app.listen(3000, function() {
 app.get("/login", async(req, res) => {
     let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" });
 
-    res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: false, secure: false });
+    res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
     res.send({ "jwt": jwtToken });
 });
 
@@ -51,6 +51,7 @@ app.get("/refresh", async(req, res) => {
 
 app.get("/blacklist", async(req, res) => {
     let blacklist = await session.blacklist(req.headers.jwt).catch();
+    session.deleteRefresh(res);
     res.send({ blacklist });
 });
 

@@ -44,5 +44,5 @@ function Session() {
         }
     }
 
-
+    this.refresh();
 }

@@ -115,6 +115,10 @@ module.exports.blacklist = (jwt) => {
     });
 }
 
+module.exports.deleteRefresh = (res) => {
+    res.clearCookie('refresh');
+}
+
 //function that remove expired jwt from blacklistcache every 2 minute
 let intervalID = setInterval(() => {
     for (let index = 0; index < blacklistCache.length; index++) {
