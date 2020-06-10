@@ -152,7 +152,7 @@ The client part consists of a class named Session
 ### Using cdn
 
 ```html
-
+<script src="https://cdn.jsdelivr.net/gh/alessandro-caldonazzi/session-jwt/test/client/clientComponent.js" type="text/javascript"></script>
 ```
 
 ### Manual
