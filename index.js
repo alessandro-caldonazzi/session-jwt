@@ -10,7 +10,7 @@ module.exports.middleware = (req, res, next) => {
         return;
     }
 
-    jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err) => {
+    jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
         if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
             if (req.cookies.refresh !== undefined) {
                 res.redirect(301, this.config.refreshUrl);
@@ -20,6 +20,7 @@ module.exports.middleware = (req, res, next) => {
                 res.end();
             }
         } else {
+            req.jwt = decoded;
             next();
         }
     });
