@@ -91,6 +91,8 @@ module.exports.refresh = (req, callback) => {
                 if (callback) callback(true);
                 resolve(null);
             } else {
+                delete obj.isRefresh;
+                delete obj.iat;
                 jwt.sign(obj, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
                     if (callback) callback(err, jwt);
                     resolve(jwt);
