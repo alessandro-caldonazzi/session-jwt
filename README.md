@@ -3,13 +3,6 @@
 
 session-jwt is a nodeJs module that allows you to simplify the use of sessions via JWT and RefreshToken
 
-The library is separated into two parts:
-
-* node side (server)
-* client side (browser)
-
-# Server
-
 ## Installation
 
 ```shell
@@ -143,85 +136,3 @@ session.deleteRefresh(res);
 Takes only one vestment: res (express response object)
 This method deletes the refresh cookie from the client
 
-# Client
-
-The client part consists of a class named Session
-
-## Installation
-
-### Using cdn
-
-```html
-<script src="https://cdn.jsdelivr.net/gh/alessandro-caldonazzi/session-jwt/test/client/clientComponent.js" type="text/javascript"></script>
-```
-
-### Manual
-
-You can download the clientComponent.js and include manually
-
-## Instantiate the class
-
-```js
-let session = new Session();
-```
-
-## Methods
-
-| Method Name | Porpose                                                        |
-| ----------- | -------------------------------------------------------------- |
-| setConfig   | Allows you to change the configuration                         |
-| fetch       | Allows you to create http requests with the jwt                |
-| refresh     | Allows you to change the jwt                                   |
-| blacklist   | Allows you to call the endpoit "/blacklist" (then change this) |
-
-### setConfig()
-
-```js
-session.setConfig( {/* JSON Object */} )
-```
-
-Takes a parameter: newConfig (json object)
-
-The standard config is:
-
-```js
-{
-	"refreshUrl": "/refresh",
-	"blacklist": {
-		"enabled": true,
-		"endpoit": "/blacklist"
-	},
-	"JwtKeyName": "jwt",
-	"advancedSecurity": true
-}
-```
-
-Remember that the endpoints you set must be valid express routes.
-
-### fetch()
-
-This method works in the same way as the native fetch method.
-[If you do not know fetch click here](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
-
-### refresh()
-
-```js
-session.refresh();
-```
-
-This method will make a request to your refresh endpoint to get a new jwt
-
-### blacklist()
-
-```js
-session.blacklist();
-```
-
-This method will make a request to your blacklist endpoint (if active in config), the jwt used at that moment will be banned
-
-# Best Practices - WIP
-
-### The client part:
-
--   Don't expose the jwt, don't create a getter method to use it outside the class
--   Activating advancedSecurity dramatically increases security, but doubles the number of requests to your API, use with caution.
