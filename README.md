@@ -24,7 +24,7 @@ app.use(session.middleware);
 session.settings("segreto", ["/"],  "/login");
 ```
 
-*   The first topic represents the secret used for jwt
+*   The first argument represents the secret used for jwt
 *   The second argument represents a string vector, containing the endpoints protected by authentication
 *   The third argument represents the login endpoint
 *   The fourth argument (optional), serves to set additional options that will be explained later
