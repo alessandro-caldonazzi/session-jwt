@@ -15,13 +15,6 @@ app.use(cookieParser());
 app.use(session.middleware);
 app.use(express.urlencoded({ extended: true }));
 
-//ATTENTION THIS IS NOT PRODUCTION READY | DO NOT USE THIS IN PRODUCTION
-app.use(function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    next();
-});
-
 app.use(express.static(__dirname + "/client"));
 
 app.get("/user", (req, res) => {
@@ -54,9 +47,5 @@ app.get("/blacklist", async(req, res) => {
     session.deleteRefresh(res);
     res.send({ blacklist });
 });
-
-
-
-
 
 module.exports = app;
