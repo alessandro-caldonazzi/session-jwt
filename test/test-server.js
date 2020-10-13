@@ -8,11 +8,12 @@ const jwt = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 const app = express();
 
+session.importSession(require("./config.json"));
+session.settings("segreto");
+
 app.use(cookieParser());
 app.use(session.middleware);
 app.use(express.urlencoded({ extended: true }));
-
-session.settings("segreto", ["/"], "/login");
 
 //ATTENTION THIS IS NOT PRODUCTION READY | DO NOT USE THIS IN PRODUCTION
 app.use(function(req, res, next) {
@@ -23,7 +24,7 @@ app.use(function(req, res, next) {
 
 app.use(express.static(__dirname + "/client"));
 
-app.get("/", (req, res) => {
+app.get("/user", (req, res) => {
     res.send("kk");
 });
 
@@ -32,9 +33,8 @@ app.listen(3000, function() {
 });
 
 app.get("/login", async(req, res) => {
-    let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" });
+    let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" }, res);
 
-    res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
     res.send({ "jwt": jwtToken });
 });
 

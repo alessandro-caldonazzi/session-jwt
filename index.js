@@ -1,82 +1,72 @@
 const jwt = require("jsonwebtoken");
+var cookieParser = require("cookie-parser");
 
-let blacklistCache = [];
-
-module.exports.config = {};
+let blacklistCache = [],
+    config;
 
 module.exports.middleware = (req, res, next) => {
-    if (!this.config.restrictedArea.includes(req.path)) {
+    if (this.config.unrestricted.includes(req.path)) {
         next();
         return;
     }
 
     jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
         if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
-            if (req.cookies.refresh !== undefined) {
-                res.redirect(301, this.config.refreshUrl);
-                res.end();
-            } else {
-                res.redirect(301, this.config.loginUrl);
-                res.end();
-            }
+            res.status(401).send("Invalid JWT token");
         } else {
-            req.jwt = decoded;
+            req.session = decoded;
             next();
         }
     });
 
 };
 
+module.exports.importSession = (configJson) => {
+    console.log(configJson.unrestricted);
+    this.config = configJson;
+};
+
 /** 
  * @function settings - Use this function to setup the module
  * @param {String} secret - Secret used for jwt
- * @param {Array} restrictedArea - Array of string representing the endpoits where authentication is required
- * @param {String} loginUrl - Endpoit where the usere logs in
- * @param {Object} options - For example: option.refreshUrl contain a String repesenting the refresh endpoint
+ * @param {String} jwtHeaderKeyName - Name of the header key used to store the jwt
  */
-module.exports.settings = (secret, restrictedArea, loginUrl, options = { "refreshUrl": "/refresh", "blacklisting": true, "JwtHeaderKeyName": "jwt" }) => {
+module.exports.settings = (secret, jwtHeaderKeyName = "jwt") => {
 
     if (!secret) throw "secret is required in settings function";
 
-    if (!restrictedArea) throw "restrictedArea is required in settings function";
+    if (typeof secret !== "string") throw "secret must be a string";
 
-    if (!loginUrl) throw "loginUrl is required in settings function";
+    if (typeof jwtHeaderKeyName !== "string") throw "jwtHeaderKeyName must be a string";
 
-    if (!Array.isArray(restrictedArea)) throw "restrictedArea must be an Array";
-
-    if (typeof secret !== "string") throw "secret must be an string";
-
-    if (typeof loginUrl !== "string") throw "loginUrl must be an string";
-
-
+    if (!this.config) this.config = {};
     this.config.secret = secret;
-    this.config.restrictedArea = restrictedArea;
-    this.config.loginUrl = loginUrl;
-    this.config.refreshUrl = options.refreshUrl;
-    this.config.blacklisting = options.blacklisting;
-    this.config.JwtHeaderKeyName = options.JwtHeaderKeyName;
-}
+    this.config.JwtHeaderKeyName = jwtHeaderKeyName;
+};
 
 
 /** 
  * @function newSession - Create new session (generate jwt and refreshToken)
  * @param {Object} objData - Data to save in jwt
+ * @param {Object} res - Express response, used to set refresh cookie
  * @param {function (Object, Object)} [callback] - Optional function, called after calculating jwt and refreshToken
  * @returns {Promise} Return a promise with jwtToken and refreshToken as a Object
  */
-module.exports.newSession = (objData, callback) => {
+module.exports.newSession = (objData, res, callback = null) => {
     return new Promise((resolve) => {
         jwt.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
             jwt.sign(objData, this.config.secret, (err, refreshToken) => {
 
+                if (res) res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
+
                 if (callback) callback(jwtToken, refreshToken);
                 resolve({ jwtToken, refreshToken });
             });
         });
     });
-}
+};
 
 /**
  * @function refresh - Recreate jwt if there is a valid refreshToken in req as cookie
@@ -100,7 +90,7 @@ module.exports.refresh = (req, callback) => {
             }
         });
     });
-}
+};
 
 /**
  * @function blacklist - blacklist an jwt if blacklisting is enable in config
@@ -116,11 +106,11 @@ module.exports.blacklist = (jwt) => {
             reject("To blacklist an jwt you need to enable blacklisting in settings");
         }
     });
-}
+};
 
 module.exports.deleteRefresh = (res) => {
     res.clearCookie('refresh');
-}
+};
 
 //function that remove expired jwt from blacklistcache every 2 minute
 let intervalID = setInterval(() => {

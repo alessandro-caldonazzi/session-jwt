@@ -8,21 +8,9 @@ chai.should();
 describe("utente non loggato", () => {
     it("non deve ricevere kk come response", (done) => {
         chai.request(server)
-            .get("/")
+            .get("/user")
             .end((err, res) => {
-                res.should.have.status(200);
-                res.text.should.not.equal("kk");
-                res.body.should.not.equal("kk");
-                done();
-            });
-    });
-
-    it("prova endpoit request senza token", (done) => {
-        chai.request(server)
-            .get("/refresh")
-            .redirects(0)
-            .end((err, res) => {
-                res.should.have.status(301);
+                res.should.have.status(401);
                 done();
             });
     });
@@ -46,7 +34,7 @@ describe("utente loggato", () => {
 
     step("Prova accesso area ristretta con jwt", (done) => {
         chai.request(server)
-            .get("/")
+            .get("/user")
             .set("jwt", jwt)
             .end((err, res) => {
                 res.should.have.status(200);
@@ -67,6 +55,7 @@ describe("utente loggato", () => {
             });
     });
 
+    /*
     step("Blacklist this jwt", (done) => {
         chai.request(server)
             .get("/blacklist")
@@ -82,7 +71,7 @@ describe("utente loggato", () => {
 
     step("Prova richiesta con jwt bannato", (done) => {
         chai.request(server)
-            .get("/")
+            .get("/user")
             .end((err, res) => {
                 res.should.have.status(200);
                 res.text.should.not.equal("kk");
@@ -90,4 +79,5 @@ describe("utente loggato", () => {
                 done();
             });
     });
+    */
 });
