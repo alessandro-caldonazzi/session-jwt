@@ -13,6 +13,8 @@ module.exports.middleware = (req, res, next) => {
     jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
         if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
             res.status(401).send("Invalid JWT token");
+        } else if (!decoded.role || !this.config[decoded.role].includes(req.path)) {
+            res.status(401).send("Permission denied");
         } else {
             req.session = decoded;
             next();
@@ -49,11 +51,13 @@ module.exports.settings = (secret, jwtHeaderKeyName = "jwt") => {
  * @function newSession - Create new session (generate jwt and refreshToken)
  * @param {Object} objData - Data to save in jwt
  * @param {Object} res - Express response, used to set refresh cookie
+ * @param {String} role - Authorization level, listed in config file (only if you are using middleware)
  * @param {function (Object, Object)} [callback] - Optional function, called after calculating jwt and refreshToken
  * @returns {Promise} Return a promise with jwtToken and refreshToken as a Object
  */
-module.exports.newSession = (objData, res, callback = null) => {
+module.exports.newSession = (objData, res, role = null, callback = null) => {
     return new Promise((resolve) => {
+        Object.assign(objData, { role });
         jwt.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
