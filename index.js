@@ -102,15 +102,28 @@ module.exports.refresh = (req, callback) => {
  * @returns {Boolean} - Operation status
  */
 module.exports.blacklist = (jwt) => {
+
+
+    blacklistCache.push(jwt);
+    retrun true;
+
+};
+
+module.exports.deleteRefresh = (res) => {
+    res.clearCookie('refresh');
+};
+
+/**
+ * @function blacklist - blacklist an jwt if blacklisting is enable in config
+ * @param {String} jwt - Jwt to blacklist
+ * @returns {Boolean} - Operation status
+ */
+module.exports.blacklist = (jwt) => {
     return new Promise((resolve) => {
 
         blacklistCache.push(jwt);
         resolve(true);
     });
-};
-
-module.exports.deleteRefresh = (res) => {
-    res.clearCookie('refresh');
 };
 
 //function that remove expired jwt from blacklistcache every 2 minute
