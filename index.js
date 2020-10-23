@@ -13,7 +13,7 @@ module.exports.middleware = (req, res, next) => {
     jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
         if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
             res.status(401).send("Invalid JWT token");
-        } else if (!decoded.role || !this.config[decoded.role].includes(req.path)) {
+        } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
             res.status(401).send("Permission denied");
         } else {
             req.session = decoded;
@@ -99,30 +99,31 @@ module.exports.refresh = (req, callback) => {
 /**
  * @function blacklist - blacklist an jwt if blacklisting is enable in config
  * @param {String} jwt - Jwt to blacklist
- * @returns {Boolean} - Operation status
  */
 module.exports.blacklist = (jwt) => {
-
-
     blacklistCache.push(jwt);
-    retrun true;
-
 };
 
 module.exports.deleteRefresh = (res) => {
-    res.clearCookie('refresh');
+    res.clearCookie("refresh");
 };
 
 /**
- * @function blacklist - blacklist an jwt if blacklisting is enable in config
- * @param {String} jwt - Jwt to blacklist
- * @returns {Boolean} - Operation status
+ * @function getSession - getSession from request, provide feedback on session validity
+ * @param {Object} req - Express request object
+ * @returns {Promise} - Operation status, decoded jwt
  */
-module.exports.blacklist = (jwt) => {
-    return new Promise((resolve) => {
-
-        blacklistCache.push(jwt);
-        resolve(true);
+module.exports.getSession = (req) => {
+    return new Promise((resolve, reject) => {
+        jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
+            if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
+                reject("Invalid JWT");
+            } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
+                reject("Permission Denied");
+            } else {
+                resolve(decoded);
+            }
+        });
     });
 };
 
