@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 const app = express();
 
-session.importSession(require("./config.json"));
+session.importConfig(require("./config.json"));
 session.settings("segreto");
 
 app.use(cookieParser());

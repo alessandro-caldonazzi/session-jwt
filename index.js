@@ -23,7 +23,7 @@ module.exports.middleware = (req, res, next) => {
 
 };
 
-module.exports.importSession = (configJson) => {
+module.exports.importConfig = (configJson) => {
     console.log(configJson.unrestricted);
     this.config = configJson;
 };
