@@ -124,8 +124,6 @@ let intervalID = setInterval(() => {
         jwt.verify(element, this.config.secret, (err, obj) => {
             if (err) {
                 blacklistCache.splice(index, 1);
-                console.log("eliminato: ");
-                console.log(element);
             }
         });
     }
