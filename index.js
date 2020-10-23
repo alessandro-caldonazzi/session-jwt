@@ -102,13 +102,10 @@ module.exports.refresh = (req, callback) => {
  * @returns {Boolean} - Operation status
  */
 module.exports.blacklist = (jwt) => {
-    return new Promise((resolve, reject) => {
-        if (this.config.blacklisting) {
-            blacklistCache.push(jwt);
-            resolve(true);
-        } else {
-            reject("To blacklist an jwt you need to enable blacklisting in settings");
-        }
+    return new Promise((resolve) => {
+
+        blacklistCache.push(jwt);
+        resolve(true);
     });
 };
 
