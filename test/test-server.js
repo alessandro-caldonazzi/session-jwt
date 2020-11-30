@@ -26,13 +26,13 @@ app.listen(3000, function() {
 });
 
 app.get("/login", async(req, res) => {
-    let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" }, res, "user");
+    let { jwtToken, refreshToken } = await session.newSessionInCookies({ "user": "ale" }, res, "user");
 
     res.send({ "jwt": jwtToken });
 });
 
 app.get("/refresh", async(req, res) => {
-    let jwt = await session.refresh(req);
+    let jwt = await session.refreshFromCookie(req);
     if (jwt) {
         res.setHeader("Content-Type", "application/json");
         res.send({ jwt });

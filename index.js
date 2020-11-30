@@ -48,23 +48,27 @@ module.exports.settings = (secret, jwtHeaderKeyName = "jwt") => {
 
 
 /** 
- * @function newSession - Create new session (generate jwt and refreshToken)
+ * @function newSession - Create new session (generate jwt and refreshToken) and save refereshToken in a cookie
  * @param {Object} objData - Data to save in jwt
  * @param {Object} res - Express response, used to set refresh cookie
  * @param {String} role - Authorization level, listed in config file (only if you are using middleware)
  * @param {function (Object, Object)} [callback] - Optional function, called after calculating jwt and refreshToken
  * @returns {Promise} Return a promise with jwtToken and refreshToken as a Object
  */
-module.exports.newSession = (objData, res, role = null, callback = null) => {
+module.exports.newSessionInCookies = async(objData, res, role = null, callback = null) => {
+    let sessionData = await this.newSession(objData, role, callback);
+
+    if (res) res.cookie("refresh", sessionData.refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
+    return sessionData;
+};
+
+module.exports.newSession = (objData, role = null, callback = null) => {
     return new Promise((resolve) => {
         Object.assign(objData, { role });
         jwt.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwtToken) => {
 
             Object.assign(objData, { "isRefresh": true });
             jwt.sign(objData, this.config.secret, (err, refreshToken) => {
-
-                if (res) res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
-
                 if (callback) callback(jwtToken, refreshToken);
                 resolve({ jwtToken, refreshToken });
             });
@@ -78,17 +82,26 @@ module.exports.newSession = (objData, res, role = null, callback = null) => {
  * @param {function (Boolean, Object)} [callback] - Optional function, called after calculating jwt 
  * @returns {Promise} - Return a promise with jwtToken
  */
-module.exports.refresh = (req, callback) => {
+module.exports.refreshFromCookie = (req, callback) => {
+    return this.refresh(req.cookies.refresh, callback);
+};
+
+/**
+ * @function refresh - Recreate jwt if the refreshToken is valid
+ * @param {function (Boolean, Object)} [callback] - Optional function, called after calculating jwt
+ * @returns {Promise} - Return a promise with jwtToken
+ */
+module.exports.refresh = (refreshToken, callback) => {
     return new Promise((resolve) => {
-        jwt.verify(req.cookies.refresh, this.config.secret, (err, obj) => {
+        jwt.verify(refreshToken, this.config.secret, (err, obj) => {
             if (err) {
-                if (callback) callback(true);
+                if (callback) callback(false);
                 resolve(null);
             } else {
                 delete obj.isRefresh;
                 delete obj.iat;
                 jwt.sign(obj, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
-                    if (callback) callback(err, jwt);
+                    if (callback) callback(jwt);
                     resolve(jwt);
                 });
             }
