@@ -23,6 +23,17 @@ module.exports.middleware = (req, res, next) => {
 
 };
 
+module.exports.ensureAuth = async(req, res, next) => {
+    jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
+        if (!err) {
+            req.session = decoded;
+            next();
+        } else {
+            res.status(401).json({ "error": "Invalid JWT token" });
+        }
+    });
+};
+
 module.exports.importConfig = (configJson) => {
     console.log(configJson.unrestricted);
     this.config = configJson;

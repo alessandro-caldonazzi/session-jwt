@@ -8,16 +8,16 @@ const jwt = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 const app = express();
 
-session.importConfig(require("./config.json"));
+//session.importConfig(require("./config.json"));
 session.settings("segreto");
 
 app.use(cookieParser());
-app.use(session.middleware);
+//app.use(session.middleware);
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(__dirname + "/client"));
 
-app.get("/user", (req, res) => {
+app.get("/user", session.ensureAuth, (req, res) => {
     res.send("kk");
 });
 
