@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const JWT = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 
 let blacklistCache = [],
@@ -10,7 +10,7 @@ module.exports.middleware = (req, res, next) => {
         return;
     }
 
-    jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
+    JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
         if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
             res.status(401).send("Invalid JWT token");
         } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
@@ -24,7 +24,7 @@ module.exports.middleware = (req, res, next) => {
 };
 
 module.exports.ensureAuth = async(req, res, next) => {
-    jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
+    JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
         if (!err) {
             req.session = decoded;
             next();
@@ -76,12 +76,12 @@ module.exports.newSessionInCookies = async(objData, res, role = null, callback =
 module.exports.newSession = (objData, role = null, callback = null) => {
     return new Promise((resolve) => {
         Object.assign(objData, { role });
-        jwt.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwtToken) => {
+        JWT.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
 
             Object.assign(objData, { "isRefresh": true });
-            jwt.sign(objData, this.config.secret, (err, refreshToken) => {
-                if (callback) callback(jwtToken, refreshToken);
-                resolve({ jwtToken, refreshToken });
+            JWT.sign(objData, this.config.secret, (err, refreshToken) => {
+                if (callback) callback(jwt, refreshToken);
+                resolve({ jwt, refreshToken });
             });
         });
     });
@@ -104,14 +104,14 @@ module.exports.refreshFromCookie = (req, callback) => {
  */
 module.exports.refresh = (refreshToken, callback) => {
     return new Promise((resolve, reject) => {
-        jwt.verify(refreshToken, this.config.secret, (err, obj) => {
+        JWT.verify(refreshToken, this.config.secret, (err, obj) => {
             if (err) {
                 if (callback) callback(false);
                 reject(err);
             } else {
                 delete obj.isRefresh;
                 delete obj.iat;
-                jwt.sign(obj, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
+                JWT.sign(obj, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
                     if (callback) callback(jwt);
                     resolve(jwt);
                 });
@@ -139,7 +139,7 @@ module.exports.deleteRefresh = (res) => {
  */
 module.exports.getSession = (req) => {
     return new Promise((resolve, reject) => {
-        jwt.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
+        JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
             if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
                 reject("Invalid JWT");
             } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
@@ -156,7 +156,7 @@ let intervalID = setInterval(() => {
     for (let index = 0; index < blacklistCache.length; index++) {
         const element = blacklistCache[parseInt(index, 10)];
 
-        jwt.verify(element, this.config.secret, (err, obj) => {
+        JWT.verify(element, this.config.secret, (err, obj) => {
             if (err) {
                 blacklistCache.splice(index, 1);
             }
