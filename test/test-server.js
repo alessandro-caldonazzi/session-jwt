@@ -26,9 +26,9 @@ app.listen(3000, function() {
 });
 
 app.get("/login", async(req, res) => {
-    let { jwtToken, refreshToken } = await session.newSessionInCookies({ "user": "ale" }, res, "user");
+    let { jwt, refreshToken } = await session.newSessionInCookies({ "user": "ale" }, res, "user");
 
-    res.send({ "jwt": jwtToken });
+    res.send({ "jwt": jwt });
 });
 
 app.get("/refresh", async(req, res) => {
