@@ -90,7 +90,7 @@ module.exports.newSession = (objData, role = null, callback = null) => {
 /**
  * @function refresh - Recreate jwt if there is a valid refreshToken in req as cookie
  * @param {Object} req - Express request
- * @param {function (Boolean, Object)} [callback] - Optional function, called after calculating jwt 
+ * @param {function (Object)} [callback] - Optional function, called after calculating jwt 
  * @returns {Promise} - Return a promise with jwtToken
  */
 module.exports.refreshFromCookie = (req, callback) => {
@@ -99,7 +99,7 @@ module.exports.refreshFromCookie = (req, callback) => {
 
 /**
  * @function refresh - Recreate jwt if the refreshToken is valid
- * @param {function (Boolean, Object)} [callback] - Optional function, called after calculating jwt
+ * @param {function (Object)} [callback] - Optional function, called after calculating jwt
  * @returns {Promise} - Return a promise with jwtToken
  */
 module.exports.refresh = (refreshToken, callback) => {
