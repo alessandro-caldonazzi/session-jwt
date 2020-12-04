@@ -103,11 +103,11 @@ module.exports.refreshFromCookie = (req, callback) => {
  * @returns {Promise} - Return a promise with jwtToken
  */
 module.exports.refresh = (refreshToken, callback) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         jwt.verify(refreshToken, this.config.secret, (err, obj) => {
             if (err) {
                 if (callback) callback(false);
-                resolve(null);
+                reject(err);
             } else {
                 delete obj.isRefresh;
                 delete obj.iat;
