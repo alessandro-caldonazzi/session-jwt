@@ -105,7 +105,7 @@ module.exports.refreshFromCookie = (req, callback) => {
 module.exports.refresh = (refreshToken, callback) => {
     return new Promise((resolve, reject) => {
         JWT.verify(refreshToken, this.config.secret, (err, obj) => {
-            if (err || !decoded.hasOwnProperty('isRefresh')) {
+            if (err || !obj.hasOwnProperty('isRefresh')) {
                 if (callback) callback(err);
                 reject(err);
             } else {
