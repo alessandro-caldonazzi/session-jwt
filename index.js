@@ -106,7 +106,7 @@ module.exports.refresh = (refreshToken, callback) => {
     return new Promise((resolve, reject) => {
         JWT.verify(refreshToken, this.config.secret, (err, obj) => {
             if (err) {
-                if (callback) callback(false);
+                if (callback) callback(err);
                 reject(err);
             } else {
                 delete obj.isRefresh;
