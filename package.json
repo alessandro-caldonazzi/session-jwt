@@ -1,7 +1,7 @@
 {
     "name": "session-jwt",
-    "version": "2.0.4",
-    "description": "Session-jwt is nodejs module that allows you to use sessions with jwt and refresh tocken.",
+    "version": "2.0.5",
+    "description": "Session-jwt is nodejs module that allows you to use sessions with jwt and refresh token.",
     "main": "index.js",
     "scripts": {
         "start": "node test/test-server.js",
