@@ -25,7 +25,7 @@ module.exports.middleware = (req, res, next) => {
 
 module.exports.ensureAuth = async(req, res, next) => {
     JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-        if (!err) {
+        if (!err && !decoded.hasOwnProperty('isRefresh')) {
             req.session = decoded;
             next();
         } else {
