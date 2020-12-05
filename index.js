@@ -11,7 +11,7 @@ module.exports.middleware = (req, res, next) => {
     }
 
     JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-        if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
+        if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) || decoded.hasOwnProperty('isRefresh')) {
             res.status(401).send("Invalid JWT token");
         } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
             res.status(401).send("Permission denied");
@@ -140,7 +140,7 @@ module.exports.deleteRefresh = (res) => {
 module.exports.getSession = (req) => {
     return new Promise((resolve, reject) => {
         JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-            if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName])) {
+            if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) || decoded.hasOwnProperty('isRefresh')) {
                 reject("Invalid JWT");
             } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
                 reject("Permission Denied");
