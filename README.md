@@ -1,139 +1,130 @@
-# session-jwt | WIP
-## This documentation is incomplete for the time being
-[![Build Status](https://travis-ci.org/alessandro-caldonazzi/session-jwt.svg?branch=develop)](https://travis-ci.org/alessandro-caldonazzi/session-jwt)  [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ff8c6396456b40eaaa5354a0804d1cea)](https://www.codacy.com/manual/alessandro-caldonazzi/session-ws?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alessandro-caldonazzi/session-ws&amp;utm_campaign=Badge_Grade)
+# Session-jwt
 
-session-jwt is a nodeJs module that allows you to simplify the use of sessions via JWT and RefreshToken
+This library helps you manage user sessions via jwt.
+
+## How does it work?
+
+The library generates two tokens (**jwt** and **refreshToken**).  
+The **jwt** is a token with a close expiry date.  
+The **refreshToken** does not expire, it is used to get a new jwt when it expires.
 
 ## Installation
 
 ```shell
 npm install session-jwt
 ```
-## Usage
+
+## Settings
+
+```js
+const session = require('session-jwt');
+
+session.settings(process.env.YOUR_SECRET_ENV_VAR);
+```
+
+You must also add *cookie-parser* if you want the library to automatically obtain/add tokens to express requests/responses (more on this later).
 
 ```js
 const session = require('session-jwt');
 const cookieParser = require("cookie-parser");
 
-app.use(cookieParser());
-app.use(session.middleware);
+session.settings(process.env.YOUR_SECRET_ENV_VAR);
 ```
-
-## Settings
-
-```js
-session.settings("segreto", ["/"],  "/login");
-```
-
-*   The first argument represents the secret used for jwt
-*   The second argument represents a string vector, containing the endpoints protected by authentication
-*   The third argument represents the login endpoint
-*   The fourth argument (optional), serves to set additional options that will be explained later
 
 ### Optional Settings
 
-This is the fourth optional argument of the settings method
+As you saw from the code above you need to call the **settings()** method to set the jwt secret, but you can set other things like **jwtHeaderKeyName** (jwt position in header)
 
-```js
-{  
-	"refreshUrl":  "/refresh",
-	"blacklisting":  true,
-	"JwtHeaderKeyName":  "jwt"  
-}
-```
+**jwtHeaderKeyName** is by default "jwt"
 
-This is the automatic configuration, you can change what you want, but remember to create the relevant endpoints in express
+## Usage
 
-## Methods
+### Create session
 
-| Method Name   | Porpose                                                        |
-| ------------- | -------------------------------------------------------------- |
-| Setting       | Used to set the configuration                                  |
-| newSession    | Used to create a new session for a user                        |
-| refresh       | Used to recreate the jwt from the refresh cookie               |
-| blacklist     | Used to ban a jwt, for example after a logout                  |
-| deleteRefresh | Used to remove the refresh cookie, for example during a logout |
+#### With cookie
 
-### newSession()
-
-```js
-let { jwtToken, refreshToken } = await session.newSession({ "user": "ale" });
-```
-
-newSession has only one parameter, a JSON object.
-The latter represents the set of data that we want to save in the jwt (you can enter whatever you want)
-
-It returns a promise with two values, the first represents the jwt, while the second represents the refreshToken.
-DO NOT SAVE THE JWT IN A COOKIE.
-
-Follow this:
+When you want to create new session you can use the **newSessionInCookies** method 
 
 ```js
 app.get("/login", async(req, res) => {
-	let { jwtToken, refreshToken } = await  session.newSession({ "user": "ale" });
+    let { jwt, refreshToken } = await session.newSessionInCookies({ "user": "ale" }, res, "user");
 
-	res.cookie("refresh", refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
-	res.send({ "jwt": jwtToken });
+    res.send({ jwt });
 });
 ```
 
-### refresh()
+The first parameter is an object of data you want to save in token.
+The second parameter is the Express response object, this is used to set the **refreshToken cookie**
+
+This method returns the **jwt** and **refreshToken** through promise
+
+#### Without cookie
+
+If you don't want to use cookie you can use the **newSession** method
 
 ```js
-let  jwt  =  await  session.refresh(req);
+app.get("/login", async(req, res) => {
+    let { jwt, refreshToken } = await session.newSession({ "user": "ale" }, "user");
+
+    res.status(200).json({ jwt, refreshToken });
+});
 ```
 
-Even refresh() takes only one argument: req (express request object)
+In this case nothing is saved in cookie
 
-A promise returns, with the new jwt
-jwt will be undefined if there is no valid refresh cookie in the request
+### ensureAuth
 
-Follow this:
+To be sure a user has a valid **jwt** to access an endpoint you must use **ensureAuth** in your Express router. 
+
+```js
+app.get("/user", session.ensureAuth, (req, res) => {ù
+	//there is a valid jwt
+    //You can access req.session to get data saved in jwt
+    res.send("kk");
+});
+```
+
+Doing so will automatically **block all requests** that do not have a valid **jwt**. Remember that the **jwt** must be in the position of the header described in the settings
+
+*You can access **req.session*** to get data saved in jwt*
+
+### Refresh token
+
+When the jwt expires you have to create a new one through the refreshToken
+
+#### With cookie
+
+If your **refreshToken** is in cookies named **refresh**, or if you created the session using the **newSessionInCookies** method you can use this method
 
 ```js
 app.get("/refresh", async(req, res) => {
-	let jwt = await session.refresh(req);
-	if (jwt) {
-		res.setHeader("Content-Type",  "application/json");
-		res.send({ jwt });
-	} else {
-		res.redirect(301, "/login");
-		res.end();
-	}
+    try {
+        const jwt = await session.refreshFromCookie(req);
+        res.status(200).json({ jwt });
+    } catch (err) {
+    	//if refreshToken is invalid, the user must log in
+        res.redirect(301, "/login");
+        res.end();
+    }
 });
 ```
 
-### blacklist()
+This method returns a valid **jwt** or false (if **refreshCookie** is invalid)
+
+#### Without cookie
+
+If you are managing the **refreshCookie** on your own you must use this method
 
 ```js
-let blacklist = await session.blacklist(req.headers.jwt).catch();
-```
-
-Even blacklist() takes only one parameter: a jwt
-
-Return a promise
-
-You can follow this example:
-
-```js
-app.get("/blacklist", async(req, res) => {
-	let blacklist = await session.blacklist(req.headers.jwt).catch();
-	session.deleteRefresh(res);
-
-	res.send({ blacklist });
+app.get("/refresh", async(req, res) => {
+    try {
+        const refreshToken = req.body.refreshToken;
+        const jwt = await session.refresh(refreshToken);
+        res.status(200).json({ jwt });
+    } catch (err) {
+        //if refreshToken is invalid, the user must log in
+        res.redirect(301, "/login");
+        res.end();
+    }
 });
 ```
-
-In this example the jwt is retrieved from the header (you can choose where to save it) and banned, then the refresh cookie is deleted.
-
-This could simply be a logout endpoint
-
-### deleteRefresh()
-
-```js
-session.deleteRefresh(res);
-```
-
-Takes only one vestment: res (express response object)
-This method deletes the refresh cookie from the client
-
