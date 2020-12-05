@@ -32,11 +32,11 @@ app.get("/login", async(req, res) => {
 });
 
 app.get("/refresh", async(req, res) => {
-    let jwt = await session.refreshFromCookie(req);
-    if (jwt) {
-        res.setHeader("Content-Type", "application/json");
-        res.send({ jwt });
-    } else {
+    try {
+        const jwt = await session.refreshFromCookie(req);
+        res.status(200).json({ jwt });
+    } catch (err) {
+        //if refreshToken is invalid, the user must log in
         res.redirect(301, "/login");
         res.end();
     }
