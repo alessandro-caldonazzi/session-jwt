@@ -77,7 +77,7 @@ In this case nothing is saved in cookie
 To be sure a user has a valid **jwt** to access an endpoint you must use **ensureAuth** in your Express router. 
 
 ```js
-app.get("/user", session.ensureAuth, (req, res) => {ù
+app.get("/user", session.ensureAuth, (req, res) => {
 	//there is a valid jwt
     //You can access req.session to get data saved in jwt
     res.send("kk");
