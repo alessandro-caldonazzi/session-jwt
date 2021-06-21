@@ -21,17 +21,17 @@ app.get("/user", session.ensureAuth, (req, res) => {
     res.send("kk");
 });
 
-app.listen(3000, function() {
+app.listen(3000, function () {
     console.log("server on");
 });
 
-app.get("/login", async(req, res) => {
-    let { jwt, refreshToken } = await session.newSessionInCookies({ "user": "ale" }, res, "user");
+app.get("/login", async (req, res) => {
+    let { jwt, refreshToken } = await session.newSessionInCookies({ user: "ale" }, res, "user");
 
-    res.send({ "jwt": jwt });
+    res.send({ jwt: jwt });
 });
 
-app.get("/refresh", async(req, res) => {
+app.get("/refresh", async (req, res) => {
     try {
         const jwt = await session.refreshFromCookie(req);
         res.status(200).json({ jwt });
@@ -42,7 +42,7 @@ app.get("/refresh", async(req, res) => {
     }
 });
 
-app.get("/blacklist", async(req, res) => {
+app.get("/blacklist", async (req, res) => {
     let blacklist = await session.blacklist(req.headers.jwt).catch();
     session.deleteRefresh(res);
     res.send({ blacklist });

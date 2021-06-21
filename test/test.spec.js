@@ -25,9 +25,9 @@ describe("utente loggato", () => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 jwt = res.body.jwt;
-                res.body.should.have.property('jwt');
-                res.header['set-cookie'].should.have.length(1);
-                cookie = res.header['set-cookie'];
+                res.body.should.have.property("jwt");
+                res.header["set-cookie"].should.have.length(1);
+                cookie = res.header["set-cookie"];
                 done();
             });
     });

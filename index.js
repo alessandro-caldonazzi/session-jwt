@@ -1,9 +1,7 @@
 const JWT = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 
-let blacklistCache = [],
-    config;
-
+let blacklistCache = [];
 module.exports.middleware = (req, res, next) => {
     if (this.config.unrestricted.includes(req.path)) {
         next();
@@ -11,7 +9,11 @@ module.exports.middleware = (req, res, next) => {
     }
 
     JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-        if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) || decoded.hasOwnProperty('isRefresh')) {
+        if (
+            err ||
+            blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) ||
+            decoded.hasOwnProperty("isRefresh")
+        ) {
             res.status(401).send("Invalid JWT token");
         } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
             res.status(401).send("Permission denied");
@@ -20,16 +22,15 @@ module.exports.middleware = (req, res, next) => {
             next();
         }
     });
-
 };
 
-module.exports.ensureAuth = async(req, res, next) => {
+module.exports.ensureAuth = async (req, res, next) => {
     JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-        if (!err && !decoded.hasOwnProperty('isRefresh')) {
+        if (!err && !decoded.hasOwnProperty("isRefresh")) {
             req.session = decoded;
             next();
         } else {
-            res.status(401).json({ "error": "Invalid JWT token" });
+            res.status(401).json({ error: "Invalid JWT token" });
         }
     });
 };
@@ -39,13 +40,12 @@ module.exports.importConfig = (configJson) => {
     this.config = configJson;
 };
 
-/** 
+/**
  * @function settings - Use this function to setup the module
  * @param {String} secret - Secret used for jwt
  * @param {String} jwtHeaderKeyName - Name of the header key used to store the jwt
  */
 module.exports.settings = (secret, jwtHeaderKeyName = "jwt") => {
-
     if (!secret) throw "secret is required in settings function";
 
     if (typeof secret !== "string") throw "secret must be a string";
@@ -57,8 +57,7 @@ module.exports.settings = (secret, jwtHeaderKeyName = "jwt") => {
     this.config.JwtHeaderKeyName = jwtHeaderKeyName;
 };
 
-
-/** 
+/**
  * @function newSession - Create new session (generate jwt and refreshToken) and save refereshToken in a cookie
  * @param {Object} objData - Data to save in jwt
  * @param {Object} res - Express response, used to set refresh cookie
@@ -66,10 +65,15 @@ module.exports.settings = (secret, jwtHeaderKeyName = "jwt") => {
  * @param {function (Object, Object)} [callback] - Optional function, called after calculating jwt and refreshToken
  * @returns {Promise} Return a promise with jwtToken and refreshToken as a Object
  */
-module.exports.newSessionInCookies = async(objData, res, role = null, callback = null) => {
+module.exports.newSessionInCookies = async (objData, res, role = null, callback = null) => {
     let sessionData = await this.newSession(objData, role, callback);
 
-    if (res) res.cookie("refresh", sessionData.refreshToken, { maxAge: 90000000, httpOnly: true, secure: true });
+    if (res)
+        res.cookie("refresh", sessionData.refreshToken, {
+            maxAge: 90000000,
+            httpOnly: true,
+            secure: true,
+        });
     return sessionData;
 };
 
@@ -77,8 +81,7 @@ module.exports.newSession = (objData, role = null, callback = null) => {
     return new Promise((resolve) => {
         Object.assign(objData, { role });
         JWT.sign(objData, this.config.secret, { expiresIn: 400 }, (err, jwt) => {
-
-            Object.assign(objData, { "isRefresh": true });
+            Object.assign(objData, { isRefresh: true });
             JWT.sign(objData, this.config.secret, (err, refreshToken) => {
                 if (callback) callback(jwt, refreshToken);
                 resolve({ jwt, refreshToken });
@@ -90,7 +93,7 @@ module.exports.newSession = (objData, role = null, callback = null) => {
 /**
  * @function refresh - Recreate jwt if there is a valid refreshToken in req as cookie
  * @param {Object} req - Express request
- * @param {function (Object)} [callback] - Optional function, called after calculating jwt 
+ * @param {function (Object)} [callback] - Optional function, called after calculating jwt
  * @returns {Promise} - Return a promise with jwtToken
  */
 module.exports.refreshFromCookie = (req, callback) => {
@@ -105,7 +108,7 @@ module.exports.refreshFromCookie = (req, callback) => {
 module.exports.refresh = (refreshToken, callback) => {
     return new Promise((resolve, reject) => {
         JWT.verify(refreshToken, this.config.secret, (err, obj) => {
-            if (err || !obj.hasOwnProperty('isRefresh')) {
+            if (err || !obj.hasOwnProperty("isRefresh")) {
                 if (callback) callback(err);
                 reject(err);
             } else {
@@ -140,7 +143,11 @@ module.exports.deleteRefresh = (res) => {
 module.exports.getSession = (req) => {
     return new Promise((resolve, reject) => {
         JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-            if (err || blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) || decoded.hasOwnProperty('isRefresh')) {
+            if (
+                err ||
+                blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) ||
+                decoded.hasOwnProperty("isRefresh")
+            ) {
                 reject("Invalid JWT");
             } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
                 reject("Permission Denied");
