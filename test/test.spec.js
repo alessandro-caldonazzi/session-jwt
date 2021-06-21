@@ -5,8 +5,8 @@ const server = require("./test-server");
 chai.use(chaiHttp);
 chai.should();
 
-describe("utente non loggato", () => {
-    it("non deve ricevere kk come response", (done) => {
+describe("Unauthorized user", () => {
+    it("Do not receive kk as response", (done) => {
         chai.request(server)
             .get("/user")
             .end((err, res) => {
@@ -16,9 +16,9 @@ describe("utente non loggato", () => {
     });
 });
 
-describe("utente loggato", () => {
+describe("Authorized user", () => {
     let jwt, cookie;
-    step("recupero jwt loggando utente", (done) => {
+    step("Obtain jwt", (done) => {
         chai.request(server)
             .get("/login")
             .end((err, res) => {
@@ -32,7 +32,7 @@ describe("utente loggato", () => {
             });
     });
 
-    step("Prova accesso area ristretta con jwt", (done) => {
+    step("Access restrict area  with jwt", (done) => {
         chai.request(server)
             .get("/user")
             .set("jwt", jwt)
@@ -43,7 +43,7 @@ describe("utente loggato", () => {
             });
     });
 
-    step("Prova refresh senza jwt", (done) => {
+    step("Refresh token", (done) => {
         chai.request(server)
             .get("/refresh")
             .set("Cookie", cookie[0])
