@@ -36,7 +36,6 @@ module.exports.ensureAuth = async (req, res, next) => {
 };
 
 module.exports.importConfig = (configJson) => {
-    console.log(configJson.unrestricted);
     this.config = configJson;
 };
 

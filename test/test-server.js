@@ -8,11 +8,9 @@ const jwt = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 const app = express();
 
-//session.importConfig(require("./config.json"));
 session.settings("segreto");
 
 app.use(cookieParser());
-//app.use(session.middleware);
 app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static(__dirname + "/client"));
@@ -28,7 +26,7 @@ app.listen(3000, function () {
 app.get("/login", async (req, res) => {
     let { jwt, refreshToken } = await session.newSessionInCookies({ user: "ale" }, res, "user");
 
-    res.send({ jwt: jwt });
+    res.send({ jwt });
 });
 
 app.get("/refresh", async (req, res) => {
