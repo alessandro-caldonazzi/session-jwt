@@ -157,6 +157,13 @@ module.exports.getSession = (req) => {
     });
 };
 
+module.exports.hasRole = (role) => {
+    return (req, res, next) => {
+        if (req.session.role) return next();
+        res.status(401).json({ error: "Invalid role" });
+    };
+};
+
 //function that remove expired jwt from blacklistcache every 2 minute
 let intervalID = setInterval(() => {
     for (let index = 0; index < blacklistCache.length; index++) {
