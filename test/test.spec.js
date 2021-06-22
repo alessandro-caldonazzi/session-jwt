@@ -73,31 +73,24 @@ describe("Authorized user - role=user", () => {
             });
     });
 
-    /*
     step("Blacklist this jwt", (done) => {
         chai.request(server)
             .get("/blacklist")
-            .set('jwt', jwt)
+            .set("jwt", jwt)
             .end((err, res) => {
                 res.should.have.status(200);
-                res.body.should.be.a("object");
-                res.body.should.have.property("blacklist");
-                res.body.blacklist.should.be.true;
                 done();
             });
     });
 
-    step("Prova richiesta con jwt bannato", (done) => {
+    step("Trying to access with blacklisted jwt", (done) => {
         chai.request(server)
             .get("/user")
             .end((err, res) => {
-                res.should.have.status(200);
-                res.text.should.not.equal("kk");
-                res.body.should.not.equal("kk");
+                res.should.have.status(401);
                 done();
             });
     });
-    */
 });
 
 describe("Authorized user - role=admin", () => {

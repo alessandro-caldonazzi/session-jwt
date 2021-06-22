@@ -1,16 +1,17 @@
 const JWT = require("jsonwebtoken");
-var cookieParser = require("cookie-parser");
-
+const errorMessages = require("./responses/errorMessages");
 let blacklistCache = [];
 
 module.exports.ensureAuth = async (req, res, next) => {
-    JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-        if (!err && !decoded.hasOwnProperty("isRefresh")) {
-            req.session = decoded;
-            next();
-        } else {
-            res.status(401).json({ error: "Invalid JWT token" });
+    const jwt = req.headers[this.config.JwtHeaderKeyName];
+    if (blacklistCache.includes(jwt)) return errorMessages.blacklisted(res);
+
+    JWT.verify(jwt, this.config.secret, (err, decoded) => {
+        if (err || decoded.hasOwnProperty("isRefresh")) {
+            return errorMessages.invalidJwt(res);
         }
+        req.session = decoded;
+        next();
     });
 };
 
@@ -113,33 +114,10 @@ module.exports.deleteRefresh = (res) => {
     res.clearCookie("refresh");
 };
 
-/**
- * @function getSession - getSession from request, provide feedback on session validity
- * @param {Object} req - Express request object
- * @returns {Promise} - Operation status, decoded jwt
- */
-module.exports.getSession = (req) => {
-    return new Promise((resolve, reject) => {
-        JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-            if (
-                err ||
-                blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) ||
-                decoded.hasOwnProperty("isRefresh")
-            ) {
-                reject("Invalid JWT");
-            } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
-                reject("Permission Denied");
-            } else {
-                resolve(decoded);
-            }
-        });
-    });
-};
-
 module.exports.hasRole = (role) => {
     return (req, res, next) => {
         if (req.session.role) return next();
-        res.status(401).json({ error: "Invalid role" });
+        errorMessages.invalidRole(res);
     };
 };
 

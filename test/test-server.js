@@ -40,9 +40,9 @@ app.get("/refresh", async (req, res) => {
 });
 
 app.get("/blacklist", async (req, res) => {
-    let blacklist = await session.blacklist(req.headers.jwt).catch();
+    session.blacklist(req.headers.jwt);
     session.deleteRefresh(res);
-    res.send({ blacklist });
+    res.send();
 });
 
 app.get("/admin", session.ensureAuth, session.hasRole("admin"), async (req, res) => {
