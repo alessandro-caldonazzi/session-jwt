@@ -2,27 +2,6 @@ const JWT = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 
 let blacklistCache = [];
-module.exports.middleware = (req, res, next) => {
-    if (this.config.unrestricted.includes(req.path)) {
-        next();
-        return;
-    }
-
-    JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
-        if (
-            err ||
-            blacklistCache.includes(req.headers[this.config.JwtHeaderKeyName]) ||
-            decoded.hasOwnProperty("isRefresh")
-        ) {
-            res.status(401).send("Invalid JWT token");
-        } else if (decoded.role && !this.config[decoded.role].includes(req.path)) {
-            res.status(401).send("Permission denied");
-        } else {
-            req.session = decoded;
-            next();
-        }
-    });
-};
 
 module.exports.ensureAuth = async (req, res, next) => {
     JWT.verify(req.headers[this.config.JwtHeaderKeyName], this.config.secret, (err, decoded) => {
