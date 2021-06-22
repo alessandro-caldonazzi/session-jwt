@@ -4,7 +4,6 @@
 
 const express = require("express");
 const session = require("../index.js");
-const jwt = require("jsonwebtoken");
 var cookieParser = require("cookie-parser");
 const app = express();
 
@@ -24,7 +23,7 @@ app.listen(3000, function () {
 });
 
 app.get("/login", async (req, res) => {
-    let { jwt, refreshToken } = await session.newSessionInCookies({ user: "ale" }, res, "user");
+    let { jwt } = await session.newSessionInCookies({ user: "user" }, res, "user");
 
     res.send({ jwt });
 });
@@ -44,6 +43,16 @@ app.get("/blacklist", async (req, res) => {
     let blacklist = await session.blacklist(req.headers.jwt).catch();
     session.deleteRefresh(res);
     res.send({ blacklist });
+});
+
+app.get("/admin", session.ensureAuth, session.hasRole("admin"), async (req, res) => {
+    res.send({ message: "you are an admin" });
+});
+
+app.get("/adminLogin", async (req, res) => {
+    let { jwt } = await session.newSessionInCookies({ user: "user" }, res, "admin");
+
+    res.send({ jwt });
 });
 
 module.exports = app;
