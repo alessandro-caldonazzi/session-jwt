@@ -5,8 +5,8 @@ const server = require("./test-server");
 chai.use(chaiHttp);
 chai.should();
 
-describe("utente non loggato", () => {
-    it("non deve ricevere kk come response", (done) => {
+describe("Unauthorized user", () => {
+    it("Cannot access protected area", (done) => {
         chai.request(server)
             .get("/user")
             .end((err, res) => {
@@ -14,25 +14,34 @@ describe("utente non loggato", () => {
                 done();
             });
     });
+
+    it("Cannot access role based area", (done) => {
+        chai.request(server)
+            .get("/admin")
+            .end((err, res) => {
+                res.should.have.status(401);
+                done();
+            });
+    });
 });
 
-describe("utente loggato", () => {
+describe("Authorized user - role=user", () => {
     let jwt, cookie;
-    step("recupero jwt loggando utente", (done) => {
+    step("Obtain jwt", (done) => {
         chai.request(server)
             .get("/login")
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a("object");
                 jwt = res.body.jwt;
-                res.body.should.have.property('jwt');
-                res.header['set-cookie'].should.have.length(1);
-                cookie = res.header['set-cookie'];
+                res.body.should.have.property("jwt");
+                res.header["set-cookie"].should.have.length(1);
+                cookie = res.header["set-cookie"];
                 done();
             });
     });
 
-    step("Prova accesso area ristretta con jwt", (done) => {
+    step("Access restrict area  with jwt", (done) => {
         chai.request(server)
             .get("/user")
             .set("jwt", jwt)
@@ -43,7 +52,7 @@ describe("utente loggato", () => {
             });
     });
 
-    step("Prova refresh senza jwt", (done) => {
+    step("Refresh token", (done) => {
         chai.request(server)
             .get("/refresh")
             .set("Cookie", cookie[0])
@@ -55,29 +64,57 @@ describe("utente loggato", () => {
             });
     });
 
-    /*
-    step("Blacklist this jwt", (done) => {
+    step("Cannot access admin page", (done) => {
         chai.request(server)
-            .get("/blacklist")
-            .set('jwt', jwt)
+            .get("/admin")
             .end((err, res) => {
-                res.should.have.status(200);
-                res.body.should.be.a("object");
-                res.body.should.have.property("blacklist");
-                res.body.blacklist.should.be.true;
+                res.should.have.status(401);
                 done();
             });
     });
 
-    step("Prova richiesta con jwt bannato", (done) => {
+    step("Blacklist this jwt", (done) => {
         chai.request(server)
-            .get("/user")
+            .get("/blacklist")
+            .set("jwt", jwt)
             .end((err, res) => {
                 res.should.have.status(200);
-                res.text.should.not.equal("kk");
-                res.body.should.not.equal("kk");
                 done();
             });
     });
-    */
+
+    step("Trying to access with blacklisted jwt", (done) => {
+        chai.request(server)
+            .get("/user")
+            .end((err, res) => {
+                res.should.have.status(401);
+                done();
+            });
+    });
+});
+
+describe("Authorized user - role=admin", () => {
+    let jwt;
+    step("Obtain jwt", (done) => {
+        chai.request(server)
+            .get("/adminLogin")
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a("object");
+                jwt = res.body.jwt;
+                res.body.should.have.property("jwt");
+                res.header["set-cookie"].should.have.length(1);
+                done();
+            });
+    });
+    step("Access admin page", (done) => {
+        chai.request(server)
+            .get("/admin")
+            .set("jwt", jwt)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.message.should.equal("you are an admin");
+                done();
+            });
+    });
 });

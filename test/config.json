@@ -1,5 +1,0 @@
-{
-    "unrestricted": ["/static", "/login", "/refresh"],
-    "user": ["/user"],
-    "admin": ["/backoffice"]
-}
