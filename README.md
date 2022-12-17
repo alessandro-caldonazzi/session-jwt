@@ -1,4 +1,4 @@
-# Session-jwt [![Build Status](https://travis-ci.org/alessandro-caldonazzi/session-jwt.svg?branch=develop)](https://travis-ci.org/alessandro-caldonazzi/session-jwt)  [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ff8c6396456b40eaaa5354a0804d1cea)](https://www.codacy.com/manual/alessandro-caldonazzi/session-ws?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alessandro-caldonazzi/session-ws&amp;utm_campaign=Badge_Grade) 
+# Session-jwt [![Build Status](https://travis-ci.org/alessandro-caldonazzi/session-jwt.svg?branch=develop)](https://travis-ci.org/alessandro-caldonazzi/session-jwt)  [![Codacy Badge](https://app.codacy.com/project/badge/Grade/15cd707e93554322b92b55167437365b)](https://www.codacy.com/gh/alessandro-caldonazzi/session-jwt/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=alessandro-caldonazzi/session-jwt&amp;utm_campaign=Badge_Grade)
  
 This library helps you manage user sessions via jwt.
 
